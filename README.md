@@ -10,6 +10,7 @@ Clone the repo, setup a Python 3 virtual environment and install the required pa
 
 ```
 git clone https://github.com/NormanBenbrahim/predict-clothing.git
+cd predict-clothing
 python3 -m venv env_python
 source env_python/bin/activate
 pip install -r requirements.txt
