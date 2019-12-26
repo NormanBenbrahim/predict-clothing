@@ -24,6 +24,7 @@ train, test = dataset['train'], dataset['test']
 class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 
                'Coat', 'Sandal', 'Shirt', 'Sneaker', 'Bag', 
                'Ankle boot']
+class_pairs = {i:class_names[i] for i in range(10)}
 
 # function to normalize images from [0,256] -> [0,1]
 def normalize(imgs, labels):
@@ -78,10 +79,12 @@ print('\n')
 print('Accuracy on test data: ', test_accuracy)
 
 #### now try predictions on real images
+# this doesn't work very well: the original images suck
+# so it flops on real world data & thinks everything is a bag
 def predict_new(img_file):
     img = cv2.imread(img_file, 0)
     img = img.astype('float32')
-    img = img/256
+    img = img/256 # normalize
 
     # resize image to 28x28, 4 is code for lanczos interp
     img_resized = cv2.resize(img, (28,28), interpolation=4)
@@ -89,12 +92,17 @@ def predict_new(img_file):
     # add extra dimensions needed for the model & make 
     # shape --> (1, 28, 28, 1)
     img_resized = np.expand_dims(img_resized, 2)
-    img_resized = np.array([img_resized]) # shape -> (1, 28, 28, 1)
+    img_resized = np.array([img_resized])
     
     # make prediction
     predict = model.predict(img_resized)
+    index = predict.argmax()
 
-    return predict 
+    return "Predicted class '{}': {}".format(predict.argmax(),
+                                             class_pairs[index])
+
+
+predict_new('imgs/red_heels.jpeg')
 
 
 
