@@ -36,13 +36,48 @@ def normalize(imgs, labels):
 train = train.map(normalize)
 test = test.map(normalize)
 
-# build the neural network layers
-input_layer = tf.keras.layers.Flatten(input_shape=(28, 28, 1))
-hidden_layer = tf.keras.layers.Dense(128, activation=tf.nn.relu)
-output_layer = tf.keras.layers.Dense(10, activation=tf.nn.softmax)
+# add the data to the cache so it doesn't have to re-load
+train = train.cache()
+test = test.cache()
 
-# initiate the model with the layers
-model = tf.keras.Sequential([input_layer, hidden_layer, output_layer])
+
+# build the neural network layers
+# we will build a convolutional neural network with 7 layers
+all_layers = [] # initiate for appending
+
+# don't worry what these mean for now - you can always
+# tweak and read documents, and that's how you learn
+conv_l1 = tf.keras.layers.Conv2D(32, 
+                                 (3, 3), 
+                                 padding='same',
+                                 activation=tf.nn.relu,
+                                 input_shape=(28, 28, 1))
+all_layers.append(conv_l1)
+
+maxpool_l1 = tf.keras.layers.MaxPooling2D((2, 2),
+                                          strides=2)
+all_layers.append(maxpool_l1)
+
+conv_l2 = tf.keras.layers.Conv2D(64, 
+                                 (3, 3), 
+                                 padding='same', 
+                                 activation=tf.nn.relu)
+all_layers.append(conv_l2)
+
+maxpool_l2 = tf.keras.layers.MaxPooling2D((2, 2), strides=2)
+all_layers.append(maxpool_l2)
+
+flat_layer = tf.keras.layers.Flatten()
+all_layers.append(flat_layer)
+
+hidden = tf.keras.layers.Dense(128, activation=tf.nn.relu)
+all_layers.append(hidden)
+
+output = tf.keras.layers.Dense(10, activation=tf.nn.softmax)
+all_layers.append(output)
+
+# initiate the model with all the layers
+model = tf.keras.Sequential(all_layers)
 
 # compile the model
 model.compile(optimizer='adam',
