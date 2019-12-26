@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 import tensorflow as tf 
 import numpy as np
+import cv2
 import seaborn as sns 
 import logging
 import tensorflow_datasets as tfds
@@ -75,5 +76,28 @@ test_loss, test_accuracy = results
 # print accuracy
 print('\n')
 print('Accuracy on test data: ', test_accuracy)
+
+#### now try predictions on real images
+def predict_new(img_file):
+    img = cv2.imread(img_file, 0)
+    img = img.astype('float32')
+    img = img/256
+
+    # resize image to 28x28, 4 is code for lanczos interp
+    img_resized = cv2.resize(img, (28,28), interpolation=4)
+
+    # add extra dimensions needed for the model & make 
+    # shape --> (1, 28, 28, 1)
+    img_resized = np.expand_dims(img_resized, 2)
+    img_resized = np.array([img_resized]) # shape -> (1, 28, 28, 1)
+    
+    # make prediction
+    predict = model.predict(img_resized)
+
+    return predict 
+
+
+
+
 
 
